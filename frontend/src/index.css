@@ -1,0 +1,329 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand Colors - Premium Glass Light Theme */
+    --background: 210 33% 99%;
+    --foreground: 220 30% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 30% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 12%;
+
+    /* Vivid Accents - Electric Indigo & Bright Sky */
+    --primary: 245 80% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 20% 96%;
+    --secondary-foreground: 220 30% 12%;
+
+    --muted: 220 20% 95%;
+    --muted-foreground: 220 15% 45%;
+
+    --accent: 250 84% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 90%;
+    --input: 220 20% 90%;
+    --ring: 245 80% 55%;
+
+    --radius: 1.25rem;
+
+    --success: 152 60% 42%;
+    --success-foreground: 0 0% 100%;
+
+    /* Glowing gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(245 80% 55%), hsl(280 84% 60%), hsl(320 84% 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(245 80% 55%), hsl(280 84% 60%));
+
+    /* Soft Glass Shadows */
+    --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.04);
+    --shadow-elevated: 0 20px 40px rgba(89, 56, 255, 0.12);
+    --shadow-glow: 0 0 20px 2px rgba(89, 56, 255, 0.1);
+  }
+}
+
+@layer base {
+  /* ========== Dark Mode Variables ========== */
+  .dark {
+    --background: 222 30% 8%;
+    --foreground: 210 20% 92%;
+
+    --card: 222 25% 12%;
+    --card-foreground: 210 20% 92%;
+
+    --popover: 222 25% 12%;
+    --popover-foreground: 210 20% 92%;
+
+    --primary: 245 80% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 20% 18%;
+    --secondary-foreground: 210 20% 85%;
+
+    --muted: 222 20% 16%;
+    --muted-foreground: 220 15% 55%;
+
+    --accent: 250 84% 70%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 20% 20%;
+    --input: 222 20% 20%;
+    --ring: 245 80% 65%;
+
+    --success: 152 55% 48%;
+    --success-foreground: 0 0% 100%;
+
+    --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.3);
+    --shadow-elevated: 0 20px 40px rgba(89, 56, 255, 0.15);
+    --shadow-glow: 0 0 20px 2px rgba(89, 56, 255, 0.15);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Outfit', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+
+  /* Soft Ambient Light Blobs */
+  .bg-orb {
+    @apply absolute rounded-full blur-[100px] opacity-20 pointer-events-none mix-blend-multiply;
+    background: var(--gradient-hero);
+  }
+
+  .accent-gradient {
+    background: var(--gradient-accent);
+  }
+
+  .text-gradient {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: var(--shadow-card);
+  }
+
+  .dark .glass-panel {
+    background: rgba(30, 34, 50, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .card-elevated {
+    @apply glass-panel;
+  }
+
+  .card-hover {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .card-hover:hover {
+    box-shadow: var(--shadow-elevated);
+    transform: translateY(-4px) scale(1.01);
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+
+  .step-completed {
+    @apply bg-success text-success-foreground shadow-sm;
+  }
+
+  .step-active {
+    background: var(--gradient-accent);
+    @apply text-white shadow-md;
+    box-shadow: 0 4px 15px rgba(89, 56, 255, 0.3);
+  }
+
+  .step-inactive {
+    @apply bg-muted text-muted-foreground;
+  }
+}
+
+/* Print styles for PDF export */
+@media print {
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 15mm 10mm;
+  }
+  
+  /* Reset backgrounds and colors */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Hide non-essential elements */
+  .print\\:hidden,
+  button,
+  .bg-orb,
+  nav,
+  footer {
+    display: none !important;
+  }
+  
+  /* Container adjustments */
+  #root {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  
+  /* Card and panel styles */
+  .glass-panel,
+  .card-elevated {
+    background: white !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+  
+  /* Module/Week cards */
+  .rounded-2xl {
+    border-radius: 8px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin-bottom: 12px !important;
+  }
+  
+  /* Sessions list */
+  .space-y-2 > * {
+    margin-bottom: 6px !important;
+    page-break-inside: avoid !important;
+  }
+  
+  /* Badge styles for print */
+  .badge,
+  [class*="Badge"] {
+    border: 1px solid #d1d5db !important;
+    background: #f9fafb !important;
+    padding: 2px 8px !important;
+    font-size: 9pt !important;
+  }
+  
+  /* Timeline styles */
+  .absolute.left-5,
+  .absolute.left-6 {
+    left: 0 !important;
+  }
+  
+  .pl-14,
+  .pl-16 {
+    padding-left: 30px !important;
+  }
+  
+  /* Headers */
+  h1, h2, h3 {
+    page-break-after: avoid !important;
+    color: #1f2937 !important;
+  }
+  
+  h1 { font-size: 18pt !important; }
+  h2 { font-size: 14pt !important; }
+  h3 { font-size: 12pt !important; }
+  
+  /* Text colors */
+  .text-foreground,
+  .text-primary,
+  .text-muted-foreground {
+    color: #374151 !important;
+  }
+  
+  /* Links */
+  a {
+    color: #2563eb !important;
+    text-decoration: none !important;
+  }
+  
+  a[href]:after {
+    content: none !important;
+  }
+  
+  /* Ensure sessions are visible */
+  [class*="AnimatePresence"] > * {
+    display: block !important;
+    opacity: 1 !important;
+    height: auto !important;
+  }
+  
+  /* Progress bar */
+  .h-2\\.5 {
+    height: 8px !important;
+    background: #e5e7eb !important;
+  }
+  
+  /* Quote blocks */
+  .italic {
+    font-style: italic !important;
+    color: #6b7280 !important;
+    font-size: 10pt !important;
+  }
+  
+  /* Duration badges */
+  .whitespace-nowrap {
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 9pt !important;
+  }
+  
+  /* Course transition banner */
+  .from-green-50 {
+    background: #ecfdf5 !important;
+    border: 1px solid #a7f3d0 !important;
+  }
+  
+  /* Track completion banner */
+  .from-yellow-50 {
+    background: #fffbeb !important;
+    border: 1px solid #fcd34d !important;
+  }
+}
