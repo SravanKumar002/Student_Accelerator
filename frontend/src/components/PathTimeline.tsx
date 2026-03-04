@@ -312,7 +312,7 @@ const PathTimeline = ({ path, onBack, onHome, onSave }: PathTimelineProps) => {
                                                                             target="_blank"
                                                                             rel="noopener noreferrer"
                                                                             className="inline-flex items-center justify-center p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors"
-                                                                            title="Open in CCBP"
+                                                                            title="Open in NxtWave Academy"
                                                                         >
                                                                             <ExternalLink className="h-4 w-4" />
                                                                         </a>

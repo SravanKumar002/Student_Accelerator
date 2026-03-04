@@ -74,26 +74,22 @@ const FEATURE_CARDS = [
     { 
         icon: Rocket, 
         label: 'Personalized Roadmap', 
-        desc: 'Get a week-by-week plan built around YOUR available hours and learning goals.', 
-        quote: '"A journey of a thousand miles begins with a single step."' 
+        desc: 'Get a week-by-week plan built around your available hours and learning goals.', 
     },
     { 
         icon: Book, 
-        label: 'Direct CCBP Links', 
-        desc: 'Every session links directly to the CCBP learning portal — just click and start learning.', 
-        quote: '"Tell me and I forget, teach me and I may remember, involve me and I learn."' 
+        label: 'NxtWave Academy Portal Links', 
+        desc: 'Every session links directly to the NxtWave Academy portal — just click and start learning.', 
     },
     { 
         icon: Target, 
         label: 'Smart Pacing', 
-        desc: 'Our engine adjusts difficulty based on your skill level, backlogs, and pace.', 
-        quote: '"Slow progress is still progress."' 
+        desc: 'Adjusts session load based on your skill level and learning pace.', 
     },
     { 
         icon: TrendingUp, 
         label: 'Track Progress', 
-        desc: 'Coaches can monitor your path and help you stay on track for placements.', 
-        quote: '"Success is not final, failure is not fatal — it\'s the courage to continue."' 
+        desc: 'Coaches can monitor your path and help you stay on track.', 
     },
 ];
 
@@ -140,7 +136,7 @@ const HeroSection = ({ onGetStarted, onCoachDashboard }: HeroSectionProps) => {
             ---------------------------------------------------------------- */}
             <div className="w-full py-2.5 text-center text-primary-foreground text-xs md:text-sm font-semibold tracking-wide flex justify-center items-center gap-2 accent-gradient relative z-20">
                 <Sparkles className="w-4 h-4" /> 
-                Your Personalized Learning Roadmap Awaits 
+                NxtWave Academy — Your Personalized Learning Roadmap 
                 <Sparkles className="w-4 h-4" />
             </div>
 
@@ -192,7 +188,7 @@ const HeroSection = ({ onGetStarted, onCoachDashboard }: HeroSectionProps) => {
                             >
                                 <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary/20 bg-primary/5 text-sm font-bold mb-6 sm:mb-8 text-primary shadow-[0_0_15px_rgba(99,102,241,0.1)]">
                                     <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
-                                    AI-Powered Learning Accelerator
+                                    NxtWave Academy
                                 </div>
                             </motion.div>
 
@@ -214,8 +210,7 @@ const HeroSection = ({ onGetStarted, onCoachDashboard }: HeroSectionProps) => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: ANIMATION_CONFIG.duration, delay: 0.2, ease: ANIMATION_CONFIG.ease }}
                             >
-                                Tell us your goals, availability, and we'll craft a week-by-week learning roadmap — 
-                                from Static Websites to Node.js, with direct links to every session on the CCBP learning portal.
+                                Tell us your goals and availability — NxtWave Academy will craft a week-by-week learning plan with direct portal links to every session.
                             </motion.p>
 
                             {/* Inspirational Quote */}
@@ -311,9 +306,6 @@ const HeroSection = ({ onGetStarted, onCoachDashboard }: HeroSectionProps) => {
                                             </h3>
                                             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-medium">
                                                 {feature.desc}
-                                            </p>
-                                            <p className="text-[10px] sm:text-xs italic text-primary/50 mt-2 font-medium">
-                                                {feature.quote}
                                             </p>
                                         </div>
                                     </motion.div>
