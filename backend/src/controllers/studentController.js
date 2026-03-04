@@ -1,6 +1,5 @@
 import StudentData from "../models/StudentData.js";
 import Curriculum from "../models/Curriculum.js";
-import GeneratedPath from "../models/GeneratedPath.js";
 
 // @desc    Get student data (profile, goals, availability)
 // @route   GET /api/student/me
@@ -79,56 +78,55 @@ const STACK_TOPICS = {
     "Build Your Own Static Website",
     "Build Your Own Responsive Website",
     "Modern Responsive Web Design",
-    "JS Essentials",
     "Build Your Own Dynamic Web Application",
+    "JS Essentials",
     "Introduction to React JS",
   ],
   backend: [
     "Programming Foundations",
+    "Node JS",
     "JS Essentials",
     "Introduction to Databases",
-    "Node JS",
     "MongoDB",
   ],
   fullstack: [
     "Build Your Own Static Website",
     "Build Your Own Responsive Website",
     "Modern Responsive Web Design",
-    "Programming Foundations",
-    "Python for DSML",
-    "JS Essentials",
     "Build Your Own Dynamic Web Application",
+    "Programming Foundations",
+    "JS Essentials",
+    "Introduction to React JS",
     "Introduction to Databases",
     "Node JS",
-    "Introduction to React JS",
     "MongoDB",
   ],
   "ai-ml": [
-    "Programming Foundations",
-    "Python for DSML",
-    "Linux and Git Essentials",
-    "Data Analytics Foundations",
+    "Mathematics Fundamentals",
+    "Descriptive Statistics & EDA",
+    "Introduction to Probability and Distributions",
+    "Inferential Statistics",
     "Introduction to ML and Classification Algorithms",
     "Supervised Learning: Regression",
+  ],
+  "applied-genai": [
     "Generative AI",
     "Building LLM Applications",
+    "AI Full-Stack Projects",
   ],
   dsa: [
-    "Programming Foundations",
-    "JS Essentials",
     "DSA Foundation",
     "Phase 1 : Data Structures and Algorithms",
     "Phase 2 : Advanced DSA",
+    "DSA Contest Coding Questions",
   ],
   sql: [
-    "Programming Foundations",
     "Introduction to Databases",
-    "Data Analytics Foundations",
+    "MongoDB",
   ],
   python: [
     "Programming Foundations",
     "Python for DSML",
-    "Data Analytics Foundations",
   ],
 };
 
@@ -159,17 +157,16 @@ const PACE_SETTINGS = {
 };
 
 function determineLearningPace(skillLevel) {
-  if (skillLevel <= 2) return "slow";
-  if (skillLevel >= 4) return "fast";
+  if (skillLevel === 1) return "slow";
+  if (skillLevel === 3) return "fast";
   return "moderate";
 }
 
 function determineProgram(data) {
   const { currentSkillLevel } = data.goals;
-  const hasBacklogs = data.profile.hasBacklogs;
 
-  if (currentSkillLevel <= 2 || hasBacklogs) return "basic";
-  if (currentSkillLevel >= 4) return "intensive";
+  if (currentSkillLevel === 1) return "basic";
+  if (currentSkillLevel === 3) return "intensive";
   return "academy";
 }
 
@@ -368,18 +365,20 @@ const TRACK_CONTINUATION = {
     "Introduction to React JS",
   ],
   dsa: ["Python for DSML", "Introduction to Databases", "Node JS"],
-  "ai-ml": ["Introduction to Databases", "JS Essentials", "Node JS"],
+  "ai-ml": ["Generative AI", "Building LLM Applications", "AI Full-Stack Projects"],
+  "applied-genai": ["Introduction to ML and Classification Algorithms", "Supervised Learning: Regression"],
   fullstack: [], // fullstack already has everything
 };
 
 // Track completion messages and next track suggestions
 const TRACK_NAMES = {
-  backend: "Backend Development",
-  frontend: "Frontend Development",
+  backend: "Programming & Backend Foundations",
+  frontend: "Frontend & Web Development",
   fullstack: "Full Stack Development",
-  "ai-ml": "AI/ML Engineering",
+  "ai-ml": "Machine Learning & AI",
+  "applied-genai": "Applied Generative AI",
   dsa: "Data Structures & Algorithms",
-  sql: "SQL & Databases",
+  sql: "Databases & Data Management",
   python: "Python Programming",
 };
 
@@ -428,9 +427,19 @@ const NEXT_TRACK_SUGGESTIONS = {
     courses: ["Introduction to React JS", "Node JS", "MongoDB"],
   },
   "ai-ml": {
+    nextTrack: "applied-genai",
+    message:
+      "🎉 Congratulations! You've completed the Machine Learning & AI track! Consider exploring Applied Generative AI next.",
+    courses: [
+      "Generative AI",
+      "Building LLM Applications",
+      "AI Full-Stack Projects",
+    ],
+  },
+  "applied-genai": {
     nextTrack: "fullstack",
     message:
-      "🎉 Congratulations! You've completed AI/ML track! Consider learning Full Stack to build end-to-end ML applications.",
+      "🎉 Congratulations! You've completed Applied Generative AI! Consider learning Full Stack to build end-to-end AI applications.",
     courses: [
       "Build Your Own Dynamic Web Application",
       "Node JS",
@@ -470,7 +479,6 @@ export const generatePath = async (req, res) => {
       "1-week": 1,
       "2-week": 2,
       "3-week": 3,
-      "4-week": 4,
       "1-month": 4,
       "2-month": 8,
     };
@@ -555,6 +563,27 @@ export const generatePath = async (req, res) => {
         .json({ message: "No curriculum found for the selected path." });
     }
 
+    // --- Filter out Classroom Quizzes and Module Quizzes ---
+    function isQuizToRemove(item) {
+      const name = (item.sessionName || "").toLowerCase();
+      if (name.includes("classroom quiz") || name.includes("classroom")) return true;
+      if (name.includes("module quiz")) return true;
+      if (name.includes("course quiz")) return true;
+      return false;
+    }
+
+    const filteredItems = [];
+    const filteredOrder = [];
+    for (let i = 0; i < curriculumItems.length; i++) {
+      if (!isQuizToRemove(curriculumItems[i])) {
+        filteredItems.push(curriculumItems[i]);
+        filteredOrder.push(courseOrder[i]);
+      }
+    }
+    curriculumItems = filteredItems;
+    courseOrder.length = 0;
+    courseOrder.push(...filteredOrder);
+
     // Slice items based on what user has completed
     if (
       goals.lastCompletedSessionId &&
@@ -580,6 +609,19 @@ export const generatePath = async (req, res) => {
     }
 
     const weeklyMinsLimit = weeklyHours * 60;
+
+    // Pre-calculate total content minutes so we can spread sessions evenly
+    // across the full requested plan duration instead of greedily packing them.
+    let totalContentMins = 0;
+    for (const item of curriculumItems) {
+      let d = parseInt(item.duration, 10);
+      if (isNaN(d) || d === 0) d = 45;
+      totalContentMins += Math.ceil(d * multiplier);
+    }
+    const spreadWeeklyLimit = Math.min(
+      weeklyMinsLimit,
+      Math.ceil(totalContentMins / maxWeeks)
+    );
 
     const modules = [];
     let currentWeek = 1;
@@ -689,7 +731,7 @@ export const generatePath = async (req, res) => {
       currentDuration = Math.ceil(currentDuration * multiplier);
 
       if (
-        currentWeekMins + currentDuration > weeklyMinsLimit &&
+        currentWeekMins + currentDuration > spreadWeeklyLimit &&
         currentSessions.length > 0
       ) {
         // finish week module
@@ -820,7 +862,6 @@ export const getAllPaths = async (_req, res) => {
   try {
     const paths = await GeneratedPath.find().sort({ created_at: -1 }).lean();
 
-    // Map _id → id for frontend compatibility
     const mapped = paths.map((p) => ({
       ...p,
       id: p._id.toString(),

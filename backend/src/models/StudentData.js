@@ -72,27 +72,21 @@ const studentDataSchema = new mongoose.Schema(
       },
 
       /**
-       * Preferred language for learning
-       * Affects which video content versions to recommend
+       * Student's email address
        */
-      languageComfort: {
+      email: {
         type: String,
-        enum: {
-          values: ["telugu", "english", "other"],
-          message: "Language must be telugu, english, or other",
-        },
-        required: [true, "Language preference is required"],
+        required: [true, "Email is required"],
+        trim: true,
       },
 
       /**
-       * Whether the student has academic backlogs
-       * If true, assigns "basic" program with slower pace
-       * This gives more time to balance studies
+       * Student's phone number
        */
-      hasBacklogs: {
-        type: Boolean,
-        required: true,
-        default: false,
+      phone: {
+        type: String,
+        required: [true, "Phone number is required"],
+        trim: true,
       },
     },
 
@@ -101,21 +95,6 @@ const studentDataSchema = new mongoose.Schema(
     // What the student wants to achieve
     // =====================================================================
     goals: {
-      /**
-       * Primary learning objective
-       * - placement: Preparing for full-time job interviews
-       * - internship: Preparing for internship opportunities
-       * - skill-upgrade: General skill improvement
-       */
-      primaryGoal: {
-        type: String,
-        enum: {
-          values: ["placement", "internship", "skill-upgrade"],
-          message: "Goal must be placement, internship, or skill-upgrade",
-        },
-        required: [true, "Primary goal is required"],
-      },
-
       /**
        * Technology stack to focus on
        * Determines which courses to include in the learning path
@@ -136,6 +115,7 @@ const studentDataSchema = new mongoose.Schema(
             "backend",
             "fullstack",
             "ai-ml",
+            "applied-genai",
             "dsa",
             "sql",
             "python",
@@ -146,11 +126,11 @@ const studentDataSchema = new mongoose.Schema(
       },
 
       /**
-       * Self-assessed current skill level (1-5)
+       * Self-assessed learning pace (1-3)
        *
-       * 1-2: Beginner (slow pace, more time per topic)
-       * 3: Intermediate (standard pace)
-       * 4-5: Advanced (faster pace, can skip basics)
+       * 1: Slow Learner (more time per topic)
+       * 2: Steady (standard pace)
+       * 3: Fast Learner (faster pace)
        *
        * This affects:
        * - Program type (basic/academy/intensive)
@@ -160,7 +140,7 @@ const studentDataSchema = new mongoose.Schema(
       currentSkillLevel: {
         type: Number,
         min: [1, "Skill level must be at least 1"],
-        max: [5, "Skill level cannot exceed 5"],
+        max: [3, "Skill level cannot exceed 3"],
         required: [true, "Current skill level is required"],
       },
     },
@@ -223,7 +203,6 @@ const studentDataSchema = new mongoose.Schema(
             "1-week",
             "2-week",
             "3-week",
-            "4-week",
             "1-month",
             "2-month",
           ],

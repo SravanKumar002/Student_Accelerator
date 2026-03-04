@@ -26,7 +26,6 @@ import { StudentProfile } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -49,13 +48,6 @@ interface ProfileStepProps {
 
 /** Available academic years */
 const ACADEMIC_YEARS = ['1st', '2nd', '3rd', '4th'] as const;
-
-/** Available language options */
-const LANGUAGE_OPTIONS = [
-    { value: 'telugu', label: 'Telugu' },
-    { value: 'english', label: 'English' },
-    { value: 'other', label: 'Other' }
-] as const;
 
 // =============================================================================
 // COMPONENT
@@ -147,46 +139,35 @@ const ProfileStep = ({ data, onChange }: ProfileStepProps) => {
                     </Select>
                 </div>
 
-                {/* Language Comfort Select */}
+                {/* Email ID Input */}
                 <div className="space-y-3">
-                    <Label className="text-foreground/80 text-sm font-bold">
-                        Language Comfort
+                    <Label htmlFor="email" className="text-foreground/80 text-sm font-bold">
+                        Email ID <span className="text-primary">*</span>
                     </Label>
-                    <Select 
-                        value={data.languageComfort} 
-                        onValueChange={(v) => updateField('languageComfort', v as StudentProfile['languageComfort'])}
-                    >
-                        <SelectTrigger className="bg-white border-border text-foreground h-12 rounded-xl focus:ring-primary shadow-sm">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border-border text-foreground">
-                            {LANGUAGE_OPTIONS.map((option) => (
-                                <SelectItem 
-                                    key={option.value} 
-                                    value={option.value} 
-                                    className="focus:bg-muted focus:text-foreground"
-                                >
-                                    {option.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Input
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={data.email}
+                        onChange={(e) => updateField('email', e.target.value)}
+                        required
+                        className="bg-white border-border text-foreground placeholder:text-muted-foreground h-12 rounded-xl focus-visible:ring-primary shadow-sm"
+                    />
                 </div>
 
-                {/* Academic Backlogs Toggle */}
-                <div className="flex items-center justify-between p-5 rounded-xl bg-white/60 border border-border shadow-sm hover:border-primary/40 transition-colors">
-                    <div>
-                        <Label className="text-foreground font-bold text-base">
-                            Academic Backlogs?
-                        </Label>
-                        <p className="text-xs text-muted-foreground mt-1 font-medium">
-                            We'll algorithmically slow your pace
-                        </p>
-                    </div>
-                    <Switch 
-                        checked={data.hasBacklogs} 
-                        onCheckedChange={(v) => updateField('hasBacklogs', v)} 
-                        className="data-[state=checked]:bg-primary" 
+                {/* Phone Number Input */}
+                <div className="space-y-3">
+                    <Label htmlFor="phone" className="text-foreground/80 text-sm font-bold">
+                        Phone Number <span className="text-primary">*</span>
+                    </Label>
+                    <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="Enter your phone number"
+                        value={data.phone}
+                        onChange={(e) => updateField('phone', e.target.value)}
+                        required
+                        className="bg-white border-border text-foreground placeholder:text-muted-foreground h-12 rounded-xl focus-visible:ring-primary shadow-sm"
                     />
                 </div>
             </div>

@@ -72,8 +72,8 @@ type View = 'landing' | 'form' | 'path' | 'coach' | 'coach-auth';
 const defaultProfile: StudentProfile = {
     name: '',
     year: '2nd',
-    languageComfort: 'english',
-    hasBacklogs: false
+    email: '',
+    phone: ''
 };
 
 /**
@@ -81,7 +81,6 @@ const defaultProfile: StudentProfile = {
  * Initial values for the goals form step
  */
 const defaultGoals: LearningGoals = {
-    primaryGoal: 'placement',
     targetStack: 'fullstack',
     courseName: 'all',
     lastCompletedSessionId: '',
@@ -118,6 +117,15 @@ const STEPS: FormStep[] = ['profile', 'goals', 'availability'];
 const validateProfile = (profile: StudentProfile): string | null => {
     if (!profile.name.trim()) {
         return 'Full Name is required.';
+    }
+    if (!profile.email.trim()) {
+        return 'Email ID is required.';
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email)) {
+        return 'Please enter a valid email address.';
+    }
+    if (!profile.phone.trim()) {
+        return 'Phone Number is required.';
     }
     return null;
 };

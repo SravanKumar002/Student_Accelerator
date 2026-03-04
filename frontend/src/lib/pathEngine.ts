@@ -155,6 +155,21 @@ const TOPIC_DEFINITIONS: Record<
     hours: 20,
     description: "NumPy, Pandas, data visualization, ML basics",
   },
+  "ai-projects": {
+    name: "AI Full-Stack Projects",
+    hours: 25,
+    description: "MERN stack AI applications, end-to-end deployment",
+  },
+  "math-ml": {
+    name: "Mathematics for ML",
+    hours: 15,
+    description: "Linear algebra, calculus, statistics for machine learning",
+  },
+  "statistics": {
+    name: "Statistics & Probability",
+    hours: 20,
+    description: "Descriptive stats, EDA, probability, inferential statistics",
+  },
 };
 
 // =============================================================================
@@ -172,8 +187,8 @@ const LEARNING_TRACKS: Record<string, string[]> = {
     "static-web",
     "responsive-web",
     "modern-responsive",
-    "javascript",
     "dynamic-web",
+    "javascript",
     "reactjs",
   ],
   backend: ["python", "javascript", "sql", "nodejs", "mongodb"],
@@ -181,17 +196,18 @@ const LEARNING_TRACKS: Record<string, string[]> = {
     "static-web",
     "responsive-web",
     "modern-responsive",
+    "dynamic-web",
     "python",
     "javascript",
-    "dynamic-web",
     "sql",
     "nodejs",
     "reactjs",
     "mongodb",
   ],
-  "ai-ml": ["python", "python-ds", "genai", "llms"],
-  dsa: ["python", "javascript", "dsa"],
-  sql: ["python", "sql"],
+  "ai-ml": ["math-ml", "statistics", "python", "python-ds"],
+  "applied-genai": ["genai", "llms", "ai-projects"],
+  dsa: ["dsa"],
+  sql: ["sql", "mongodb"],
   python: ["python", "python-ds"],
 };
 
@@ -227,15 +243,14 @@ function determineProgram(
   data: StudentData,
 ): "basic" | "academy" | "intensive" {
   const skillLevel = data.goals.currentSkillLevel;
-  const hasBacklogs = data.profile.hasBacklogs;
 
-  // Beginners or students with backlogs get basic pace
-  if (skillLevel <= 2 || hasBacklogs) return "basic";
+  // Slow learner gets basic pace
+  if (skillLevel === 1) return "basic";
 
-  // Advanced students get intensive pace
-  if (skillLevel >= 4) return "intensive";
+  // Fast learner gets intensive pace
+  if (skillLevel === 3) return "intensive";
 
-  // Everyone else gets standard pace
+  // Steady gets standard pace
   return "academy";
 }
 
@@ -248,8 +263,8 @@ function determineProgram(
 function determineLearningPace(
   skillLevel: number,
 ): "slow" | "moderate" | "fast" {
-  if (skillLevel <= 2) return "slow";
-  if (skillLevel >= 4) return "fast";
+  if (skillLevel === 1) return "slow";
+  if (skillLevel === 3) return "fast";
   return "moderate";
 }
 
@@ -355,13 +370,15 @@ export function generateLearningPath(data: StudentData): LearningPathData {
     "1-week": 1,
     "2-week": 2,
     "3-week": 3,
-    "4-week": 4,
     "1-month": 4,
     "2-month": 8,
   };
 
   const maxWeeks = DURATION_WEEKS[data.availability.planDuration] || 4;
   const totalAvailableHours = weeklyHours * maxWeeks;
+
+  // We'll also compute an effective weekly budget later to spread content
+  // evenly across maxWeeks (prevents greedy packing into week 1).
 
   // -------------------------------------------------------------------------
   // STEP 3: Build topic list based on available hours
@@ -416,6 +433,23 @@ export function generateLearningPath(data: StudentData): LearningPathData {
       } as PathModule;
     })
     .filter(Boolean) as PathModule[];
+
+  // Spread weeks evenly across maxWeeks so the plan fills the requested
+  // duration instead of compressing everything into the minimum weeks.
+  const rawTotalWeeks = modules.reduce((s, m) => s + m.weeksAllocated, 0);
+  if (rawTotalWeeks < maxWeeks && modules.length > 0) {
+    // Distribute extra weeks proportionally across modules
+    const extraWeeks = maxWeeks - rawTotalWeeks;
+    const perModule = Math.floor(extraWeeks / modules.length);
+    let remainder = extraWeeks - perModule * modules.length;
+    for (const mod of modules) {
+      mod.weeksAllocated += perModule;
+      if (remainder > 0) {
+        mod.weeksAllocated += 1;
+        remainder--;
+      }
+    }
+  }
 
   // -------------------------------------------------------------------------
   // STEP 5: Calculate totals and return

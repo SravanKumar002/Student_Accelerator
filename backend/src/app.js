@@ -6,7 +6,7 @@
  * This file sets up the Express application with all middleware and routes.
  * It follows the principle of separating app configuration from server startup.
  *
- * ARCHITECTURE OVERVIEW:
+ * ARCHITECTURE OVERVIEW:      
  *
  * ┌─────────────────────────────────────────────────────────────────────────┐
  * │                           Express Application                           │

@@ -37,56 +37,55 @@ const LEARNING_TRACKS = {
     "Build Your Own Static Website",
     "Build Your Own Responsive Website",
     "Modern Responsive Web Design",
-    "JS Essentials",
     "Build Your Own Dynamic Web Application",
+    "JS Essentials",
     "Introduction to React JS",
   ],
   backend: [
     "Programming Foundations",
+    "Node JS",
     "JS Essentials",
     "Introduction to Databases",
-    "Node JS",
     "MongoDB",
   ],
   fullstack: [
     "Build Your Own Static Website",
     "Build Your Own Responsive Website",
     "Modern Responsive Web Design",
-    "Programming Foundations",
-    "Python for DSML",
-    "JS Essentials",
     "Build Your Own Dynamic Web Application",
+    "Programming Foundations",
+    "JS Essentials",
+    "Introduction to React JS",
     "Introduction to Databases",
     "Node JS",
-    "Introduction to React JS",
     "MongoDB",
   ],
   "ai-ml": [
-    "Programming Foundations",
-    "Python for DSML",
-    "Linux and Git Essentials",
-    "Data Analytics Foundations",
+    "Mathematics Fundamentals",
+    "Descriptive Statistics & EDA",
+    "Introduction to Probability and Distributions",
+    "Inferential Statistics",
     "Introduction to ML and Classification Algorithms",
     "Supervised Learning: Regression",
+  ],
+  "applied-genai": [
     "Generative AI",
     "Building LLM Applications",
+    "AI Full-Stack Projects",
   ],
   dsa: [
-    "Programming Foundations",
-    "JS Essentials",
     "DSA Foundation",
     "Phase 1 : Data Structures and Algorithms",
     "Phase 2 : Advanced DSA",
+    "DSA Contest Coding Questions",
   ],
   sql: [
-    "Programming Foundations",
     "Introduction to Databases",
-    "Data Analytics Foundations",
+    "MongoDB",
   ],
   python: [
     "Programming Foundations",
     "Python for DSML",
-    "Data Analytics Foundations",
   ],
 };
 
@@ -137,7 +136,6 @@ const PLAN_DURATIONS_IN_WEEKS = {
   "1-week": 1,
   "2-week": 2,
   "3-week": 3,
-  "4-week": 4,
   "1-month": 4,
   "2-month": 8,
 };
@@ -168,6 +166,7 @@ const TRACK_CONTINUATION = {
   ],
   dsa: ["Python for DSML", "Introduction to Databases", "Node JS"],
   "ai-ml": ["Introduction to Databases", "JS Essentials", "Node JS"],
+  "applied-genai": ["Introduction to ML and Classification Algorithms", "Supervised Learning: Regression"],
   fullstack: [],
 };
 
@@ -175,12 +174,13 @@ const TRACK_CONTINUATION = {
  * TRACK NAMES (Human-readable)
  */
 const TRACK_DISPLAY_NAMES = {
-  backend: "Backend Development",
-  frontend: "Frontend Development",
+  backend: "Programming & Backend Foundations",
+  frontend: "Frontend & Web Development",
   fullstack: "Full Stack Development",
-  "ai-ml": "AI/ML Engineering",
+  "ai-ml": "Machine Learning & AI",
+  "applied-genai": "Applied Generative AI",
   dsa: "Data Structures & Algorithms",
-  sql: "SQL & Databases",
+  sql: "Databases & Data Management",
   python: "Python Programming",
 };
 
@@ -233,9 +233,19 @@ const TRACK_COMPLETION_SUGGESTIONS = {
     suggestedCourses: ["Introduction to React JS", "Node JS", "MongoDB"],
   },
   "ai-ml": {
+    nextTrack: "applied-genai",
+    message:
+      "🎉 Congratulations! You've completed the Machine Learning & AI track! Consider exploring Applied Generative AI next.",
+    suggestedCourses: [
+      "Generative AI",
+      "Building LLM Applications",
+      "AI Full-Stack Projects",
+    ],
+  },
+  "applied-genai": {
     nextTrack: "fullstack",
     message:
-      "🎉 Congratulations! You've completed AI/ML track! Consider learning Full Stack to build end-to-end ML applications.",
+      "🎉 Congratulations! You've completed Applied Generative AI! Consider learning Full Stack to build end-to-end AI applications.",
     suggestedCourses: [
       "Build Your Own Dynamic Web Application",
       "Node JS",
@@ -267,10 +277,9 @@ const TRACK_COMPLETION_SUGGESTIONS = {
  */
 function determineProgram(studentData) {
   const skillLevel = studentData.goals.currentSkillLevel;
-  const hasBacklogs = studentData.profile.hasBacklogs;
 
-  if (skillLevel <= 2 || hasBacklogs) return "basic";
-  if (skillLevel >= 4) return "intensive";
+  if (skillLevel === 1) return "basic";
+  if (skillLevel === 3) return "intensive";
   return "academy";
 }
 
@@ -281,8 +290,8 @@ function determineProgram(studentData) {
  * @returns {'slow' | 'moderate' | 'fast'} - The learning pace
  */
 function determineLearningPace(skillLevel) {
-  if (skillLevel <= 2) return "slow";
-  if (skillLevel >= 4) return "fast";
+  if (skillLevel === 1) return "slow";
+  if (skillLevel === 3) return "fast";
   return "moderate";
 }
 
@@ -654,6 +663,43 @@ export async function generateLearningPath({ profile, goals, availability }) {
   }
 
   // -------------------------------------------------------------------------
+  // STEP 3.5: Filter out Classroom Quizzes and Module Quizzes
+  // -------------------------------------------------------------------------
+
+  /**
+   * Helper to check if a session is a classroom quiz or module quiz.
+   * These are excluded from the generated learning path.
+   */
+  function isQuizToRemove(item) {
+    const name = (item.sessionName || "").toLowerCase();
+    const topic = (item.topic || "").toLowerCase();
+
+    // Remove classroom quizzes (A, B, C, etc.)
+    if (name.includes("classroom quiz") || name.includes("classroom")) return true;
+
+    // Remove module quizzes (e.g., "Module Quiz - 2")
+    if (name.includes("module quiz")) return true;
+
+    // Remove course quizzes
+    if (name.includes("course quiz")) return true;
+
+    return false;
+  }
+
+  // Filter both arrays in sync
+  const filteredItems = [];
+  const filteredMapping = [];
+  for (let i = 0; i < curriculumItems.length; i++) {
+    if (!isQuizToRemove(curriculumItems[i])) {
+      filteredItems.push(curriculumItems[i]);
+      filteredMapping.push(courseMapping[i]);
+    }
+  }
+  curriculumItems = filteredItems;
+  courseMapping.length = 0;
+  courseMapping.push(...filteredMapping);
+
+  // -------------------------------------------------------------------------
   // STEP 4: Handle "resume from" functionality
   // -------------------------------------------------------------------------
 
@@ -683,6 +729,22 @@ export async function generateLearningPath({ profile, goals, availability }) {
   // -------------------------------------------------------------------------
   // STEP 5: Distribute sessions across weeks
   // -------------------------------------------------------------------------
+
+  // Pre-calculate total content minutes so we can spread evenly
+  let totalContentMinutes = 0;
+  for (const item of curriculumItems) {
+    let dur = calculateSessionDuration(item, paceSettings);
+    dur = Math.ceil(dur * programMultiplier);
+    totalContentMinutes += dur;
+  }
+
+  // Use the smaller of (user weekly limit) and (content / maxWeeks) so that
+  // sessions are spread across the full requested duration instead of being
+  // packed greedily into the fewest possible weeks.
+  const spreadWeeklyLimit = Math.min(
+    weeklyMinutesLimit,
+    Math.ceil(totalContentMinutes / maxWeeks)
+  );
 
   const modules = [];
   let currentWeek = 1;
@@ -754,7 +816,7 @@ export async function generateLearningPath({ profile, goals, availability }) {
 
     // Check if we need to start a new week
     if (
-      currentWeekMinutes + duration > weeklyMinutesLimit &&
+      currentWeekMinutes + duration > spreadWeeklyLimit &&
       currentSessions.length > 0
     ) {
       finalizeWeek();

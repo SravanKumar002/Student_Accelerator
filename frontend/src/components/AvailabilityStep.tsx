@@ -58,7 +58,6 @@ const DURATIONS = [
     { value: '1-week', label: '1 Week Sprint' },
     { value: '2-week', label: '2 Week Sprint' },
     { value: '3-week', label: '3 Week Sprint' },
-    { value: '4-week', label: '4 Week Sprint' },
     { value: '1-month', label: '1 Month' },
     { value: '2-month', label: '2 Months' },
 ] as const;
@@ -239,7 +238,7 @@ const AvailabilityStep = ({ data, onChange }: AvailabilityStepProps) => {
             {/* Plan Duration Selector */}
             <div className="space-y-4">
                 <Label className="text-foreground/80 text-sm font-bold">
-                    Target Horizon
+                    How many days do you want to plan this?
                 </Label>
                 <Select
                     value={data.planDuration}

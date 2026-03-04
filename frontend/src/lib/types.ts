@@ -35,11 +35,11 @@ export interface StudentProfile {
   /** Current academic year - affects content recommendations */
   year: "1st" | "2nd" | "3rd" | "4th";
 
-  /** Preferred learning language */
-  languageComfort: "telugu" | "english" | "other";
+  /** Student's email address */
+  email: string;
 
-  /** Whether student has academic backlogs - triggers slower pace */
-  hasBacklogs: boolean;
+  /** Student's phone number */
+  phone: string;
 }
 
 /**
@@ -49,14 +49,6 @@ export interface StudentProfile {
  * they want to focus on.
  */
 export interface LearningGoals {
-  /**
-   * Primary learning objective
-   * - placement: Preparing for campus placements
-   * - internship: Building skills for internships
-   * - skill-upgrade: General skill improvement
-   */
-  primaryGoal: "placement" | "internship" | "skill-upgrade";
-
   /**
    * Technology stack to focus on
    * Each stack has a predefined sequence of courses
@@ -68,7 +60,8 @@ export interface LearningGoals {
     | "ai-ml" // Python, Data Science, ML
     | "dsa" // Data Structures & Algorithms
     | "sql" // Database fundamentals
-    | "python"; // Python programming
+    | "python" // Python programming
+    | "applied-genai"; // Generative AI, LLM Apps, AI Projects
 
   /** Specific course name (or 'all' for full track) */
   courseName: string;
@@ -77,10 +70,10 @@ export interface LearningGoals {
   lastCompletedSessionId: string;
 
   /**
-   * Self-assessed skill level (1-5)
-   * - 1-2: Beginner (slow pace)
-   * - 3: Intermediate (standard pace)
-   * - 4-5: Advanced (fast pace)
+   * Self-assessed learning pace (1-3)
+   * - 1: Slow Learner
+   * - 2: Steady
+   * - 3: Fast Learner
    */
   currentSkillLevel: number;
 }
@@ -106,7 +99,6 @@ export interface Availability {
     | "1-week"
     | "2-week"
     | "3-week"
-    | "4-week"
     | "1-month"
     | "2-month";
 }

@@ -34,16 +34,14 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-    Briefcase, 
-    GraduationCap, 
-    Rocket, 
     Layout, 
     Server, 
     Layers, 
     Brain, 
     Code2, 
     Database, 
-    Terminal 
+    Terminal,
+    Sparkles 
 } from 'lucide-react';
 import api from '@/lib/api';
 
@@ -79,26 +77,7 @@ interface Session {
  * Available primary learning objectives
  * These define what the student is trying to achieve
  */
-const GOALS = [
-    { 
-        value: 'placement', 
-        label: 'Placement', 
-        desc: 'Get job-ready for campus drives', 
-        icon: Briefcase 
-    },
-    { 
-        value: 'internship', 
-        label: 'Internship', 
-        desc: 'Build skills for internship roles', 
-        icon: GraduationCap 
-    },
-    { 
-        value: 'skill-upgrade', 
-        label: 'Skill Upgrade', 
-        desc: 'Level up your tech abilities', 
-        icon: Rocket 
-    },
-] as const;
+
 
 // =============================================================================
 // CONSTANTS - Learning Tracks
@@ -117,38 +96,44 @@ const LEARNING_TRACKS = [
     },
     { 
         value: 'frontend', 
-        label: 'Frontend', 
+        label: 'Frontend & Web Development', 
         desc: 'HTML, CSS, JavaScript, React', 
         icon: Layout 
     },
     { 
         value: 'backend', 
-        label: 'Backend', 
+        label: 'Programming & Backend Foundations', 
         desc: 'Python, JS, SQL, Node.js, MongoDB', 
         icon: Server 
     },
     { 
         value: 'ai-ml', 
-        label: 'AI / ML', 
-        desc: 'Python, Data Science, ML, GenAI', 
+        label: 'Machine Learning & AI', 
+        desc: 'ML, Classification, Regression, Statistics', 
         icon: Brain 
     },
     { 
+        value: 'applied-genai', 
+        label: 'Applied Generative AI', 
+        desc: 'Generative AI, LLM Applications, AI Projects', 
+        icon: Sparkles 
+    },
+    { 
         value: 'dsa', 
-        label: 'DSA', 
-        desc: 'Python, JS, Data Structures & Algorithms', 
+        label: 'Data Structures & Algorithms', 
+        desc: 'DSA Foundation, Phase 1, Phase 2, Contests', 
         icon: Code2 
     },
     { 
         value: 'python', 
         label: 'Python', 
-        desc: 'Python Foundations & Data Science', 
+        desc: 'Programming Foundations & Data Analytics', 
         icon: Terminal 
     },
     { 
         value: 'sql', 
-        label: 'SQL / DB', 
-        desc: 'Python, SQL, Database Fundamentals', 
+        label: 'Databases & Data Management', 
+        desc: 'Introduction to Databases, MongoDB', 
         icon: Database 
     },
 ] as const;
@@ -167,55 +152,55 @@ const TRACK_COURSES: Record<string, string[]> = {
         'Build Your Own Static Website', 
         'Build Your Own Responsive Website', 
         'Modern Responsive Web Design',
-        'Programming Foundations', 
-        'JS Essentials', 
         'Build Your Own Dynamic Web Application',
-        'Introduction to Databases', 
+        'JS Essentials', 
+        'Introduction to React JS',
+        'Programming Foundations', 
         'Node JS', 
-        'Introduction to React JS', 
+        'Introduction to Databases', 
         'MongoDB',
     ],
     frontend: [
         'Build Your Own Static Website', 
         'Build Your Own Responsive Website', 
         'Modern Responsive Web Design',
+        'Build Your Own Dynamic Web Application',
         'JS Essentials', 
-        'Build Your Own Dynamic Web Application', 
         'Introduction to React JS',
     ],
     backend: [
         'Programming Foundations', 
+        'Node JS',
         'JS Essentials', 
         'Introduction to Databases', 
-        'Node JS', 
         'MongoDB'
     ],
     'ai-ml': [
-        'Programming Foundations', 
-        'Python for DSML', 
-        'Data Analytics Foundations', 
-        'Data Analytics Practice',
-        'Data Analytics using PowerBI', 
-        'Data Analytics using Tableau',
+        'Mathematics Fundamentals',
+        'Descriptive Statistics & EDA',
+        'Introduction to Probability and Distributions',
+        'Inferential Statistics',
         'Introduction to ML and Classification Algorithms', 
         'Supervised Learning: Regression',
-        'Building LLM Applications', 
+    ],
+    'applied-genai': [
         'Generative AI',
+        'Building LLM Applications', 
+        'AI Full-Stack Projects',
     ],
     dsa: [
-        'Programming Foundations', 
-        'JS Essentials', 
         'DSA Foundation', 
         'Phase 1 : Data Structures and Algorithms', 
-        'Phase 2 : Advanced DSA'
+        'Phase 2 : Advanced DSA',
+        'DSA Contest Coding Questions',
     ],
     python: [
         'Programming Foundations', 
-        'Python for DSML'
+        'Python for DSML',
     ],
     sql: [
-        'Programming Foundations', 
-        'Introduction to Databases'
+        'Introduction to Databases',
+        'MongoDB',
     ],
 };
 
@@ -237,9 +222,7 @@ const ALL_FALLBACK_COURSES = Array.from(
 const PACE_LABELS = [
     'Slow Learner', 
     'Steady', 
-    'Average', 
-    'Fast Learner', 
-    'Rapid Learner'
+    'Fast Learner'
 ];
 
 // =============================================================================
@@ -382,7 +365,7 @@ const GoalsStep = ({ data, onChange }: GoalsStepProps) => {
     const handleSessionSelect = (sessionId: string) => {
         onChange({ 
             ...data, 
-            lastCompletedSessionId: sessionId === 'none' ? '' : sessionId 
+            lastCompletedSessionId: sessionId 
         });
     };
 
@@ -410,40 +393,6 @@ const GoalsStep = ({ data, onChange }: GoalsStepProps) => {
                 <p className="text-muted-foreground font-medium text-lg">
                     Define the objective for your personalized roadmap.
                 </p>
-            </div>
-
-            {/* Primary Objective Selection */}
-            <div className="space-y-4">
-                <Label className="text-foreground/80 text-sm font-bold">
-                    Primary Objective
-                </Label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {GOALS.map((goal) => {
-                        const isSelected = data.primaryGoal === goal.value;
-                        
-                        return (
-                            <button
-                                key={goal.value}
-                                onClick={() => onChange({ ...data, primaryGoal: goal.value })}
-                                className={`p-5 rounded-2xl border text-left transition-all card-hover ${
-                                    isSelected
-                                        ? 'border-primary bg-primary/5 shadow-[0_8px_20px_rgba(99,102,241,0.1)]'
-                                        : 'border-border bg-white/60 hover:border-primary/30 shadow-sm'
-                                }`}
-                            >
-                                <goal.icon 
-                                    className={`h-7 w-7 mb-3 transition-colors ${
-                                        isSelected ? 'text-primary' : 'text-muted-foreground/60'
-                                    }`} 
-                                />
-                                <div className="font-bold text-foreground">{goal.label}</div>
-                                <div className="text-xs text-muted-foreground mt-1 font-medium leading-relaxed">
-                                    {goal.desc}
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
             </div>
 
             {/* Learning Track Selection */}
@@ -483,7 +432,7 @@ const GoalsStep = ({ data, onChange }: GoalsStepProps) => {
             {/* Specific Course Selection */}
             <div className="space-y-4">
                 <Label className="text-foreground/80 text-sm font-bold">
-                    Or Pick a Specific Course
+                    Pick a Specific Course
                 </Label>
                 <Select
                     disabled={loadingCourses}
@@ -520,7 +469,7 @@ const GoalsStep = ({ data, onChange }: GoalsStepProps) => {
             {data.courseName && data.courseName !== 'all' && (
                 <div className="space-y-4">
                     <Label className="text-foreground/80 text-sm font-bold">
-                        Last Completed Session (Optional)
+                        Last Completed Session <span className="text-primary">*</span>
                     </Label>
                     
                     {/* Loading State */}
@@ -544,19 +493,13 @@ const GoalsStep = ({ data, onChange }: GoalsStepProps) => {
                     {/* Sessions Available */}
                     {!loadingSessions && sessions.length > 0 && (
                         <Select
-                            value={data.lastCompletedSessionId || 'none'}
+                            value={data.lastCompletedSessionId}
                             onValueChange={handleSessionSelect}
                         >
                             <SelectTrigger className="w-full bg-white border-border text-foreground h-14 rounded-xl focus:ring-primary shadow-sm">
                                 <SelectValue placeholder="Select your last completed session..." />
                             </SelectTrigger>
                             <SelectContent className="bg-white border-border text-foreground max-h-[300px]">
-                                <SelectItem 
-                                    value="none" 
-                                    className="focus:bg-primary/10 focus:text-primary font-bold"
-                                >
-                                    🆕 Not started yet (Begin from start)
-                                </SelectItem>
                                 {sessions.map((session) => (
                                     <SelectItem 
                                         key={session._id} 
@@ -590,7 +533,7 @@ const GoalsStep = ({ data, onChange }: GoalsStepProps) => {
                     value={[data.currentSkillLevel]}
                     onValueChange={([value]) => onChange({ ...data, currentSkillLevel: value })}
                     min={1}
-                    max={5}
+                    max={3}
                     step={1}
                     className="w-full"
                 />
